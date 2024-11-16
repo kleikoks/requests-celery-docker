@@ -1,0 +1,43 @@
+# docker compose -f docker-compose.yml --env-file=compose/local.env up --build -d
+services:
+  script:
+    build:
+      context: .
+      dockerfile: compose/Dockerfile
+    command:
+      - /start-project
+    env_file:
+      - compose/local.env
+    depends_on:
+      - celery_worker
+
+  celery_worker:
+    build:
+      context: .
+      dockerfile: compose/Dockerfile
+    command: /start-celery-worker
+    volumes:
+      - .:/src
+    env_file:
+      - compose/local.env
+    depends_on:
+      - redis
+
+  flower:
+    build:
+      context: .
+      dockerfile: ./compose/Dockerfile
+    command: /start-celery-flower
+    volumes:
+      - .:/src
+    env_file:
+      - ./compose/local.env
+    ports:
+      - 5557:5555
+    depends_on:
+      - celery_worker
+
+  redis:
+    image: redis:7
+    ports:
+      - 6379:6379

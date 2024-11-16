@@ -1,0 +1,6 @@
+#!/bin/bash
+
+set -o errexit
+set -o nounset
+
+celery --app=project.celery_app --workdir=/src worker --loglevel=INFO
